@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">PhotoViewer</string>
+    <string name="warning_no_permission">Для работы приложения \nнеобходимо дать разрешение</string>
+    <string name="explain_why_we_should_have_permission">Для просмотра фото необходимо дать разрешение на чтение галереи</string>
 </resources>

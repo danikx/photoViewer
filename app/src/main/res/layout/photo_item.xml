@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/fileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="filename"
+        tools:layout_editor_absoluteX="69dp"
+        tools:layout_editor_absoluteY="36dp"/>
+
+    <TextView
+        android:id="@+id/fileSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="fileSize"
+        tools:layout_editor_absoluteX="190dp"
+        tools:layout_editor_absoluteY="195dp"/>
+
+    <TextView
+        android:id="@+id/fileHash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="file hash"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteY="264dp"/>
+</android.support.constraint.ConstraintLayout>
