@@ -52,7 +52,7 @@ public class MainPresenter implements MainContract.Presenter {
         //todo
 //        view.showNoData(true);
         view.showData(getSimpleData());
-
+        view.showData(view.getFilePaths());
 
         view.showProgressBar(false);
     }

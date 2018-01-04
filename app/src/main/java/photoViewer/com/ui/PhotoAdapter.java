@@ -44,6 +44,7 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
         Picasso.with(ctx)
                 .load(photo.path)
+                .centerCrop()
                 .resize(100, 100)
                 .error(R.drawable.ic_launcher_background)
                 .placeholder(R.drawable.ic_launcher_background)

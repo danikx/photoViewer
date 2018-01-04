@@ -12,4 +12,12 @@ public class Photo {
     public String fileHash;
     public String path;
 
+    public static Photo create(String name, long space, String hash, String path) {
+        Photo r = new Photo();
+        r.fileName = name;
+        r.fileHash = hash;
+        r.path = path;
+        r.fileSize = "" + space;
+        return r;
+    }
 }
