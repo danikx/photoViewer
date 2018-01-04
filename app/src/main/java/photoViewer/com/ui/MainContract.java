@@ -1,5 +1,9 @@
 package photoViewer.com.ui;
 
+import java.util.List;
+
+import photoViewer.com.model.Photo;
+
 /**
  * Created by Daniyar Kalmurzin on 1/4/18.
  * email: daniyar.kalmurzin@gmail.com
@@ -16,6 +20,12 @@ public interface MainContract {
         void askPermissions();
 
         void showNoPermissionView(boolean show);
+
+        void showData(List<Photo> photos);
+
+        void openAppSettings();
+
+        void showNoData(boolean show);
     }
 
     interface Presenter {

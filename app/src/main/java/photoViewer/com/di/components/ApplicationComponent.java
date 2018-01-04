@@ -13,5 +13,7 @@ import photoViewer.com.ui.MainActivity;
 @Singleton
 @Component(modules = {ApplicationModule.class})
 public interface ApplicationComponent {
+
     void inject(MainActivity activity);
+
 }

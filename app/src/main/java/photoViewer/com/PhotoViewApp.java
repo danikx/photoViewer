@@ -28,7 +28,6 @@ public class PhotoViewApp extends Application {
     @Override public void onTerminate() {
         super.onTerminate();
 
-
     }
 
     public static ApplicationComponent component(Context context) {
