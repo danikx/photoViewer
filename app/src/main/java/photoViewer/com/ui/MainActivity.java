@@ -15,12 +15,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -39,12 +37,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private RecyclerView recyclerView;
     private View noDataView;
     private PhotoObserver observer;
+    private TextView counter;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerView);
+        counter = findViewById(R.id.counter);
         progressBar = findViewById(R.id.progressBar);
         noPermissionsView = findViewById(R.id.noPermissionsView);
         noDataView = findViewById(R.id.noData);
@@ -95,9 +95,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         if (delegate.onPermissionResult(requestCode, permissions, grantResults)) {
             presenter.permissionsGranted();
         } else {
-            /*if (delegate.shouldShowRationale()) {
-
-            }*/
             presenter.permissionsDenied();
         }
     }
@@ -129,6 +126,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         ((PhotoAdapter) recyclerView.getAdapter()).update(photos);
     }
 
+    @Override public void addPhoto(Photo photo) {
+        final PhotoAdapter adapter = (PhotoAdapter) recyclerView.getAdapter();
+        adapter.add(photo);
+        counter.setText(String.valueOf(adapter.getItemCount()));
+    }
+
     @Override public void openAppSettings() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.fromParts("package", getPackageName(), null));
@@ -145,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override public ArrayList<Photo> getFilePaths() {
+        ArrayList<Photo> result = new ArrayList<>();
+
         Uri u = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {
                 MediaStore.Images.ImageColumns.DATA,
@@ -152,74 +157,43 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 MediaStore.Images.ImageColumns.DISPLAY_NAME,
                 MediaStore.Images.ImageColumns.TITLE,
         };
-        Cursor c = null;
-        SortedSet<String> dirList = new TreeSet<>();
-        ArrayList<String> resultIAV = new ArrayList<>();
-        ArrayList<Photo> result = new ArrayList<>();
 
-        String[] directories = null;
+        Cursor c = null;
         try {
             c = getContentResolver().query(u, projection, null, null, null);
             if ((c != null) && (c.moveToFirst())) {
-                String data = c.getString(0);
-                String size = c.getString(1);
-                String name = c.getString(2);
-                String title = c.getString(3);
-
                 do {
-                    String tempDir = c.getString(0);
-                    tempDir = tempDir.substring(0, tempDir.lastIndexOf("/"));
-                    try {
-                        dirList.add(tempDir);
-                    } catch (Exception e) {
+                    String size = c.getString(1);
+                    if ("0".equals(size)) continue;
 
-                    }
-                }
-                while (c.moveToNext());
-                directories = new String[dirList.size()];
-                dirList.toArray(directories);
+                    String filePath = c.getString(0);
+                    String name = c.getString(2);
+                    String title = c.getString(3);
 
+
+                    Photo p = new Photo();
+                    p.fileName = name;
+                    p.fileSize = size;
+                    p.path = filePath;
+
+                    result.add(p);
+
+                } while (c.moveToNext());
             }
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            if (c != null) c.close();
         }
-
-
-        for (int i = 0; i < dirList.size(); i++) {
-            File imageDir = new File(directories[i]);
-            File[] imageList = imageDir.listFiles();
-            if (imageList == null)
-                continue;
-            for (File imagePath : imageList) {
-                try {
-
-                    if (imagePath.isDirectory()) {
-                        imageList = imagePath.listFiles();
-
-                    }
-                    if (imagePath.getName().contains(".jpg") || imagePath.getName().contains(".JPG")
-                            || imagePath.getName().contains(".jpeg") || imagePath.getName().contains(".JPEG")
-                            || imagePath.getName().contains(".png") || imagePath.getName().contains(".PNG")
-                            || imagePath.getName().contains(".gif") || imagePath.getName().contains(".GIF")
-                            || imagePath.getName().contains(".bmp") || imagePath.getName().contains(".BMP")
-                            ) {
-
-
-                        String path = "file:" + imagePath.getAbsolutePath();
-
-                        resultIAV.add(path);
-                        result.add(Photo.create(imagePath.getName(), imagePath.getTotalSpace(), "some hash", path));
-                    }
-                }
-                //  }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
         return result;
+    }
+
+    @Override public void showError() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.error_occured)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
+                        delegate.requestPermission();
+                        dialog.dismiss();
+                    }
+                }).show();
     }
 }

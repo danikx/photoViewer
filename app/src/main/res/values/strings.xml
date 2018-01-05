@@ -4,4 +4,8 @@
     <string name="explain_why_we_should_have_permission">Для просмотра фото необходимо разрешение на чтение галереи</string>
     <string name="permission">Разрешение</string>
     <string name="no_data">Нет Данных</string>
+    <string name="fileNameTemplate">Файл: %s</string>
+    <string name="fileHashTemplate">md5: %s</string>
+    <string name="fileSizeTemplate">Размер: %s</string>
+    <string name="error_occured">Произошла ошибка</string>
 </resources>

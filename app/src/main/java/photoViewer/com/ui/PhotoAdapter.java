@@ -24,10 +24,17 @@ import photoViewer.com.model.Photo;
 class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private ArrayList<Photo> data = new ArrayList<>();
     private Context ctx;
+    private final String fileNameTemplate;
+    private final String fileHashTemplate;
+    private final String fileSizeTemplate;
 
 
     PhotoAdapter(Context ctx) {
         this.ctx = ctx;
+
+        fileNameTemplate = ctx.getString(R.string.fileNameTemplate);
+        fileHashTemplate = ctx.getString(R.string.fileHashTemplate);
+        fileSizeTemplate = ctx.getString(R.string.fileSizeTemplate);
     }
 
     @Override public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -38,12 +45,12 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     @Override public void onBindViewHolder(PhotoViewHolder holder, int position) {
         final Photo photo = data.get(position);
 
-        holder.fileName.setText(photo.fileName);
-        holder.fileSize.setText(photo.fileSize);
-        holder.fileHash.setText(photo.fileHash);
+        holder.fileName.setText(String.format(fileNameTemplate, photo.fileName));
+        holder.fileSize.setText(String.format(fileSizeTemplate, photo.fileSize));
+        holder.fileHash.setText("#:" + photo.fileHash);
 
         Picasso.with(ctx)
-                .load(photo.path)
+                .load("file:" + photo.path)
                 .centerCrop()
                 .resize(100, 100)
                 .error(R.drawable.ic_launcher_background)
@@ -59,6 +66,11 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
         data.clear();
         data.addAll(photos);
         notifyDataSetChanged();
+    }
+
+    public void add(Photo photo) {
+        data.add(photo);
+        notifyItemInserted(data.size());
     }
 
     class PhotoViewHolder extends RecyclerView.ViewHolder {
