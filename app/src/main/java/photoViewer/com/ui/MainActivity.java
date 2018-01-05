@@ -20,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -117,10 +116,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override public void showNoPermissionView(boolean show) {
         noPermissionsView.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    @Override public void showData(List<Photo> photos) {
-        ((PhotoAdapter) recyclerView.getAdapter()).update(photos);
     }
 
     @Override public void addPhoto(Photo photo) {

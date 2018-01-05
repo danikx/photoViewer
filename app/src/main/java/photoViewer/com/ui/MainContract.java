@@ -22,8 +22,6 @@ public interface MainContract {
 
         void showNoPermissionView(boolean show);
 
-        void showData(List<Photo> photos);
-
         void openAppSettings();
 
         void showNoData(boolean show);
@@ -50,8 +48,6 @@ public interface MainContract {
         void permissionsGranted();
 
         void permissionsDenied();
-
-        void btnPermissionClicked();
 
         void onCreate();
     }

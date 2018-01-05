@@ -78,10 +78,6 @@ public class MainPresenter implements MainContract.Presenter {
         view.showNoPermissionView(true);
     }
 
-    @Override public void btnPermissionClicked() {
-        view.askPermissions();
-    }
-
     @Override public void onCreate() {
 
         if (!view.hashPermissions()) {
