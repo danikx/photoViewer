@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import photoViewer.com.PhotoObserver;
 import photoViewer.com.ui.MainContract;
 import photoViewer.com.ui.MainPresenter;
 
@@ -29,9 +30,12 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton MainContract.Presenter provideMainPresenter() {
-        return new MainPresenter();
+    @Singleton PhotoObserver providePhotoObserver(Context context) {
+        return new PhotoObserver(context);
     }
 
-
+    @Provides
+    @Singleton MainContract.Presenter provideMainPresenter(PhotoObserver observer) {
+        return new MainPresenter(observer);
+    }
 }

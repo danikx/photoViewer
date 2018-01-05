@@ -46,7 +46,7 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
         final Photo photo = data.get(position);
 
         holder.fileName.setText(String.format(fileNameTemplate, photo.fileName));
-        holder.fileSize.setText(String.format(fileSizeTemplate, photo.fileSize));
+        holder.fileSize.setText(String.format(fileSizeTemplate, photo.fileSizeInString));
         holder.fileHash.setText("#:" + photo.fileHash);
 
         Picasso.with(ctx)

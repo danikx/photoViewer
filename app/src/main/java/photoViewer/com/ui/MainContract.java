@@ -28,9 +28,9 @@ public interface MainContract {
 
         void showNoData(boolean show);
 
-        ArrayList<Photo> getFilePaths();
+        ArrayList<Photo> getPhotos();
 
-        void showError();
+        void showError(Throwable t);
 
         void addPhoto(Photo photo);
     }

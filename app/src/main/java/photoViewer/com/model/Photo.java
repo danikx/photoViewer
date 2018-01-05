@@ -8,16 +8,9 @@ package photoViewer.com.model;
 public class Photo {
 
     public String fileName;
-    public String fileSize;
+    public long fileSize;
+    public String fileSizeInString;
     public String fileHash;
     public String path;
 
-    public static Photo create(String name, long space, String hash, String path) {
-        Photo r = new Photo();
-        r.fileName = name;
-        r.fileHash = hash;
-        r.path = path;
-        r.fileSize = "" + space;
-        return r;
-    }
 }

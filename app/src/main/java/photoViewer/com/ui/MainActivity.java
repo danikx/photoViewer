@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         observer.stop();
     }
 
-    @Override public ArrayList<Photo> getFilePaths() {
+    @Override public ArrayList<Photo> getPhotos() {
         ArrayList<Photo> result = new ArrayList<>();
 
         Uri u = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -163,12 +163,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             c = getContentResolver().query(u, projection, null, null, null);
             if ((c != null) && (c.moveToFirst())) {
                 do {
-                    String size = c.getString(1);
-                    if ("0".equals(size)) continue;
+                    long size = c.getLong(1);
+                    if (0 == size) continue;
 
                     String filePath = c.getString(0);
                     String name = c.getString(2);
-                    String title = c.getString(3);
+//                    String title = c.getString(3);
 
 
                     Photo p = new Photo();
@@ -186,9 +186,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         return result;
     }
 
-    @Override public void showError() {
+    @Override public void showError(Throwable t) {
+        final String message = t.getMessage();
+
         new AlertDialog.Builder(this)
-                .setMessage(R.string.error_occured)
+                .setTitle(R.string.error)
+                .setMessage(message != null ? message : getString(R.string.error_occured))
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) {
                         delegate.requestPermission();

@@ -7,6 +7,10 @@
     android:orientation="vertical"
     tools:context="photoViewer.com.ui.MainActivity">
 
+    <include layout="@layout/view_no_permission"/>
+
+    <include layout="@layout/no_data"/>
+
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:gravity="center"
@@ -34,11 +38,5 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
-
-    <include layout="@layout/view_no_permission"/>
-
-    <include layout="@layout/no_data"/>
-
 
 </LinearLayout>

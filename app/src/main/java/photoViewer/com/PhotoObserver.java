@@ -2,8 +2,10 @@ package photoViewer.com;
 
 import android.content.Context;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import io.reactivex.Observable;
@@ -20,26 +22,41 @@ public class PhotoObserver {
     private Context context;
     private ContentObserver observer;
 
-    public PhotoObserver(Context context) {
+    public PhotoObserver(final Context context) {
         this.context = context;
 
         observer = new ContentObserver(new Handler()) {
 
             @Override public boolean deliverSelfNotifications() {
-                Log.d("photo", "deliverSelfNotifications");
                 return super.deliverSelfNotifications();
             }
 
             @Override public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
-                Log.d("photo", "onChange");
             }
 
             @Override public void onChange(boolean selfChange, Uri uri) {
                 Log.d("photo", "onChange" + uri.toString());
                 super.onChange(selfChange, uri);
+                readMediaStore(context, uri);
             }
         };
+    }
+
+    private void readMediaStore(Context context, Uri uri) {
+        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, "date_added DESC")) {
+            if (cursor != null) {
+                if (cursor.moveToNext()) {
+                    final Photo photo = new Photo();
+
+                    photo.path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+                    photo.fileSize = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE));
+                    photo.fileName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
+
+                    observable.onNext(photo);
+                }
+            }
+        }
     }
 
     public void start() {

@@ -8,4 +8,5 @@
     <string name="fileHashTemplate">md5: %s</string>
     <string name="fileSizeTemplate">Размер: %s</string>
     <string name="error_occured">Произошла ошибка</string>
+    <string name="error">Ошибка</string>
 </resources>
