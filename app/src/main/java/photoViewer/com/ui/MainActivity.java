@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import photoViewer.com.PhotoObserver;
 import photoViewer.com.PhotoViewApp;
 import photoViewer.com.R;
 import photoViewer.com.helpers.PermissionDelegate;
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private View noPermissionsView;
     private RecyclerView recyclerView;
     private View noDataView;
-    private PhotoObserver observer;
     private TextView counter;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +46,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         progressBar = findViewById(R.id.progressBar);
         noPermissionsView = findViewById(R.id.noPermissionsView);
         noDataView = findViewById(R.id.noData);
-
-        observer = new PhotoObserver(this);
 
         Button btnPermission = findViewById(R.id.btnPermission);
 
@@ -77,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override protected void onStart() {
         super.onStart();
-        observer.start();
     }
 
     @Override protected void onResume() {
@@ -140,11 +135,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override public void showNoData(boolean show) {
         noDataView.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        observer.stop();
     }
 
     @Override public ArrayList<Photo> getPhotos() {
