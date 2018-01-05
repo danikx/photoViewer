@@ -1,5 +1,7 @@
 package photoViewer.com.ui;
 
+import android.annotation.SuppressLint;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -86,32 +88,6 @@ public class MainPresenter implements MainContract.Presenter {
         }
     }
 
-    private void loadPhotos3() {
-        view.showProgressBar(true);
-
-        Observable.just(view.getPhotos())
-                .subscribeOn(Schedulers.io())
-                .map(new Function<ArrayList<Photo>, ArrayList<Photo>>() {
-                    @Override public ArrayList<Photo> apply(ArrayList<Photo> photos) throws Exception {
-                        for (Photo photo : photos) {
-                            photo.fileHash = md5(photo.path);
-                        }
-                        return photos;
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ArrayList<Photo>>() {
-                    @Override public void accept(ArrayList<Photo> photos) throws Exception {
-                        view.showData(photos);
-                        view.showProgressBar(false);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override public void accept(Throwable throwable) throws Exception {
-                        view.showError(throwable);
-                    }
-                });
-    }
-
     private void loadPhotos() {
         view.showProgressBar(true);
         final ArrayList<Photo> photos = view.getPhotos();
@@ -127,7 +103,7 @@ public class MainPresenter implements MainContract.Presenter {
 
                         @Override public Photo apply(Photo photo) throws Exception {
                             photo.fileHash = md5(photo.path);
-                            photo.fileSizeInString = humanReadableByteCount(photo.fileSize, true);
+                            photo.fileSizeInString = humanReadableByteCount(photo.fileSize);
                             return photo;
                         }
                     })
@@ -170,11 +146,10 @@ public class MainPresenter implements MainContract.Presenter {
         return "-1";
     }
 
-//    private static final String[] dictionary = {"bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+    private static final String[] dictionary = {"bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
-    /*private String format(double size, int digits) {
-        Log.d("photo", "l: " + size);
-
+    @SuppressLint("DefaultLocale")
+    private String humanReadableByteCount(double size) {
         int index;
         for (index = 0; index < dictionary.length; index++) {
             if (size < 1024) {
@@ -182,17 +157,6 @@ public class MainPresenter implements MainContract.Presenter {
             }
             size = size / 1024;
         }
-        final String format = String.format("%." + digits + "f", size) + " " + dictionary[index];
-        Log.d("photo", " format- " + format);
-        return format;
-    }*/
-
-    // stackoverflow
-    private static String humanReadableByteCount(long bytes, boolean si) {
-        int unit = si ? 1000 : 1024;
-        if (bytes < unit) return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+        return String.format("%.2f", size) + " " + dictionary[index];
     }
 }
