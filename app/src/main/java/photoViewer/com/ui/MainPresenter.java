@@ -1,6 +1,5 @@
 package photoViewer.com.ui;
 
-import android.annotation.SuppressLint;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,10 +26,10 @@ public class MainPresenter implements MainContract.Presenter {
     private MainContract.View view;
     private MessageDigest md;
     private PhotoObserver observer;
+    private ArrayList<Photo> photos;
 
     public MainPresenter(PhotoObserver observer) {
         this.observer = observer;
-
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -38,11 +37,16 @@ public class MainPresenter implements MainContract.Presenter {
         }
 
         observer.observable()
+                .distinct()
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         new Consumer<Photo>() {
                             @Override public void accept(Photo photo) throws Exception {
-                                view.addPhoto(photo);
+                                if (!photos.contains(photo)) {
+                                    photo.fileHash = md5(photo.path);
+                                    photo.fileSizeInString = humanReadableByteCount(photo.fileSize);
+                                    view.addPhotoTop(photo);
+                                }
                             }
                         },
                         new Consumer<Throwable>() {
@@ -58,14 +62,10 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override public void bind() {
         view.showNoPermissionView(!view.hashPermissions());
-        if (view.hashPermissions()) {
-            loadPhotos();
-            if (observer != null) observer.start();
-        }
     }
 
     @Override public void unBind() {
-        if (observer != null) observer.start();
+        if (observer != null) observer.stop();
     }
 
     @Override public void permissionsGranted() {
@@ -83,14 +83,23 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override public void onCreate() {
+
         if (!view.hashPermissions()) {
             view.askPermissions();
+
+        } else {
+            if (observer != null) observer.start();
+
+            loadPhotos();
         }
     }
 
     private void loadPhotos() {
+        view.clearData();
         view.showProgressBar(true);
-        final ArrayList<Photo> photos = view.getPhotos();
+
+        photos = view.getPhotos();
+
         if (photos == null || photos.isEmpty()) {
             view.showNoData(true);
         } else {
@@ -148,7 +157,6 @@ public class MainPresenter implements MainContract.Presenter {
 
     private static final String[] dictionary = {"bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
-    @SuppressLint("DefaultLocale")
     private String humanReadableByteCount(double size) {
         int index;
         for (index = 0; index < dictionary.length; index++) {

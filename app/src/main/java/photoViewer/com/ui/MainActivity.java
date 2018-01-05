@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("photo", "onCreate");
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerView);
@@ -67,21 +70,20 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         });
 
         presenter.setView(this);
-        presenter.onCreate();
         recyclerView.setAdapter(new PhotoAdapter(this));
+
+        presenter.onCreate();
     }
 
     @Override protected void onStart() {
         super.onStart();
-    }
-
-    @Override protected void onResume() {
-        super.onResume();
+        Log.d("photo", "onStart");
         presenter.bind();
     }
 
-    @Override protected void onPause() {
-        super.onPause();
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        Log.d("photo", "onDestroy");
         presenter.unBind();
     }
 
@@ -127,6 +129,17 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         counter.setText(String.valueOf(adapter.getItemCount()));
     }
 
+    @Override public void addPhotoTop(Photo photo) {
+        final PhotoAdapter adapter = (PhotoAdapter) recyclerView.getAdapter();
+        adapter.addTop(photo);
+        counter.setText(String.valueOf(adapter.getItemCount()));
+        recyclerView.scrollToPosition(0);
+    }
+
+    @Override public void clearData() {
+        ((PhotoAdapter) recyclerView.getAdapter()).clearData();
+    }
+
     @Override public void openAppSettings() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.fromParts("package", getPackageName(), null));
@@ -138,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override public ArrayList<Photo> getPhotos() {
+        Log.d("photo", "getting photos");
+
         ArrayList<Photo> result = new ArrayList<>();
 
         Uri u = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -145,12 +160,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 MediaStore.Images.ImageColumns.DATA,
                 MediaStore.Images.ImageColumns.SIZE,
                 MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                MediaStore.Images.ImageColumns.TITLE,
         };
 
         Cursor c = null;
         try {
-            c = getContentResolver().query(u, projection, null, null, null);
+            c = getContentResolver().query(u, projection, null, null, BaseColumns._ID + " DESC");
             if ((c != null) && (c.moveToFirst())) {
                 do {
                     long size = c.getLong(1);
@@ -158,8 +172,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
                     String filePath = c.getString(0);
                     String name = c.getString(2);
-//                    String title = c.getString(3);
-
 
                     Photo p = new Photo();
                     p.fileName = name;

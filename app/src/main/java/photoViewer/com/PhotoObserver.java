@@ -28,7 +28,7 @@ public class PhotoObserver {
         observer = new ContentObserver(new Handler()) {
 
             @Override public boolean deliverSelfNotifications() {
-                return super.deliverSelfNotifications();
+                return false;
             }
 
             @Override public void onChange(boolean selfChange) {
@@ -36,7 +36,6 @@ public class PhotoObserver {
             }
 
             @Override public void onChange(boolean selfChange, Uri uri) {
-                Log.d("photo", "onChange" + uri.toString());
                 super.onChange(selfChange, uri);
                 readMediaStore(context, uri);
             }
@@ -44,7 +43,11 @@ public class PhotoObserver {
     }
 
     private void readMediaStore(Context context, Uri uri) {
-        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, "date_added DESC")) {
+        try (Cursor cursor = context.getContentResolver().query(uri,
+                null,
+                null,
+                null,
+                "date_added DESC")) {
             if (cursor != null) {
                 if (cursor.moveToNext()) {
                     final Photo photo = new Photo();

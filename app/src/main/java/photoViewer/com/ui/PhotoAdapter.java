@@ -25,15 +25,12 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private ArrayList<Photo> data = new ArrayList<>();
     private Context ctx;
     private final String fileNameTemplate;
-    private final String fileHashTemplate;
     private final String fileSizeTemplate;
 
 
     PhotoAdapter(Context ctx) {
         this.ctx = ctx;
-
         fileNameTemplate = ctx.getString(R.string.fileNameTemplate);
-        fileHashTemplate = ctx.getString(R.string.fileHashTemplate);
         fileSizeTemplate = ctx.getString(R.string.fileSizeTemplate);
     }
 
@@ -47,7 +44,7 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
         holder.fileName.setText(String.format(fileNameTemplate, photo.fileName));
         holder.fileSize.setText(String.format(fileSizeTemplate, photo.fileSizeInString));
-        holder.fileHash.setText("#:" + photo.fileHash);
+        holder.fileHash.setText(String.format("#: %s", photo.fileHash));
 
         Picasso.with(ctx)
                 .load("file:" + photo.path)
@@ -62,7 +59,7 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
         return data.size();
     }
 
-    public void update(List<Photo> photos) {
+    void update(List<Photo> photos) {
         data.clear();
         data.addAll(photos);
         notifyDataSetChanged();
@@ -71,6 +68,16 @@ class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     public void add(Photo photo) {
         data.add(photo);
         notifyItemInserted(data.size());
+    }
+
+    void addTop(Photo photo) {
+        data.add(0, photo);
+        notifyItemInserted(0);
+    }
+
+    void clearData() {
+        data.clear();
+        notifyDataSetChanged();
     }
 
     class PhotoViewHolder extends RecyclerView.ViewHolder {

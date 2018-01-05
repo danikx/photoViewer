@@ -33,6 +33,10 @@ public interface MainContract {
         void showError(Throwable t);
 
         void addPhoto(Photo photo);
+
+        void clearData();
+
+        void addPhotoTop(Photo photo);
     }
 
     interface Presenter {
