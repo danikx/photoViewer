@@ -2,11 +2,8 @@ package photoViewer.com.ui;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -18,8 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -143,44 +138,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override public void showNoData(boolean show) {
         noDataView.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    @Override public ArrayList<Photo> getPhotos() {
-        Log.d("photo", "getting photos");
-
-        ArrayList<Photo> result = new ArrayList<>();
-
-        Uri u = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = {
-                MediaStore.Images.ImageColumns.DATA,
-                MediaStore.Images.ImageColumns.SIZE,
-                MediaStore.Images.ImageColumns.DISPLAY_NAME,
-        };
-
-        Cursor c = null;
-        try {
-            c = getContentResolver().query(u, projection, null, null, BaseColumns._ID + " DESC");
-            if ((c != null) && (c.moveToFirst())) {
-                do {
-                    long size = c.getLong(1);
-                    if (0 == size) continue;
-
-                    String filePath = c.getString(0);
-                    String name = c.getString(2);
-
-                    Photo p = new Photo();
-                    p.fileName = name;
-                    p.fileSize = size;
-                    p.path = filePath;
-
-                    result.add(p);
-
-                } while (c.moveToNext());
-            }
-        } finally {
-            if (c != null) c.close();
-        }
-        return result;
     }
 
     @Override public void showError(Throwable t) {

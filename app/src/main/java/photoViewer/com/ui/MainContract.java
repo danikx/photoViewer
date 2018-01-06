@@ -1,8 +1,5 @@
 package photoViewer.com.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import photoViewer.com.model.Photo;
 
 /**
@@ -25,8 +22,6 @@ public interface MainContract {
         void openAppSettings();
 
         void showNoData(boolean show);
-
-        ArrayList<Photo> getPhotos();
 
         void showError(Throwable t);
 

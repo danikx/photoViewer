@@ -9,11 +9,13 @@ import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import photoViewer.com.PhotoObserver;
+import photoViewer.com.PhotoRepository;
 import photoViewer.com.model.Photo;
 
 /**
@@ -26,34 +28,42 @@ public class MainPresenter implements MainContract.Presenter {
     private MainContract.View view;
     private MessageDigest md;
     private PhotoObserver observer;
+    private PhotoRepository repository;
     private ArrayList<Photo> photos;
+    private CompositeDisposable disposable = new CompositeDisposable();
 
-    public MainPresenter(PhotoObserver observer) {
+    public MainPresenter(PhotoObserver observer, PhotoRepository repository) {
         this.observer = observer;
+        this.repository = repository;
+
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             view.showError(e);
         }
 
-        observer.observable()
-                .distinct()
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        new Consumer<Photo>() {
-                            @Override public void accept(Photo photo) throws Exception {
-                                if (!photos.contains(photo)) {
-                                    photo.fileHash = md5(photo.path);
-                                    photo.fileSizeInString = humanReadableByteCount(photo.fileSize);
-                                    view.addPhotoTop(photo);
-                                }
-                            }
-                        },
-                        new Consumer<Throwable>() {
-                            @Override public void accept(Throwable throwable) throws Exception {
-                                view.showError(throwable);
-                            }
-                        });
+        disposable.add(
+                observer.observable()
+                        .distinct()
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                new Consumer<Photo>() {
+                                    @Override public void accept(Photo photo) throws Exception {
+                                        if (!photos.contains(photo)) {
+                                            view.showNoData(false);
+
+                                            photo.fileHash = md5(photo.path);
+                                            photo.fileSizeInString = humanReadableByteCount(photo.fileSize);
+
+                                            view.addPhotoTop(photo);
+                                        }
+                                    }
+                                },
+                                new Consumer<Throwable>() {
+                                    @Override public void accept(Throwable throwable) throws Exception {
+                                        view.showError(throwable);
+                                    }
+                                }));
     }
 
     @Override public void setView(MainContract.View view) {
@@ -65,6 +75,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override public void unBind() {
+        disposable.clear();
         if (observer != null) observer.stop();
     }
 
@@ -94,10 +105,11 @@ public class MainPresenter implements MainContract.Presenter {
         view.clearData();
         view.showProgressBar(true);
 
-        photos = view.getPhotos();
+        photos = repository.readPhotos();
 
         if (photos == null || photos.isEmpty()) {
             view.showNoData(true);
+
         } else {
             view.showNoData(false);
 
@@ -105,7 +117,6 @@ public class MainPresenter implements MainContract.Presenter {
                     .fromIterable(photos)
                     .subscribeOn(Schedulers.io())
                     .map(new Function<Photo, Photo>() {
-
                         @Override public Photo apply(Photo photo) throws Exception {
                             photo.fileHash = md5(photo.path);
                             photo.fileSizeInString = humanReadableByteCount(photo.fileSize);

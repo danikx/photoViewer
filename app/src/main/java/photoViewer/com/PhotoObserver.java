@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
