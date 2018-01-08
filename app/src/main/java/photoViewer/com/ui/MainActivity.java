@@ -141,11 +141,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override public void showError(Throwable t) {
-        final String message = t.getMessage();
+        final String message = t.getClass().getSimpleName() + ": " + t.getMessage();
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.error)
-                .setMessage(message != null ? message : getString(R.string.error_occured))
+                .setMessage(message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) {
                         delegate.requestPermission();
