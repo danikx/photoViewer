@@ -13,7 +13,7 @@ public interface MainContract {
 
         void showProgressBar(Boolean show);
 
-        boolean hashPermissions();
+        boolean hasPermissions();
 
         void askPermissions();
 
@@ -36,14 +36,12 @@ public interface MainContract {
 
         void setView(View view);
 
-        void bind();
+        void onStart();
 
-        void unBind();
+        void onStop();
 
         void permissionsGranted();
 
         void permissionsDenied();
-
-        void onCreate();
     }
 }

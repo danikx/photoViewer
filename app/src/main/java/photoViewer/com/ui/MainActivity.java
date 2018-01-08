@@ -26,12 +26,14 @@ import photoViewer.com.model.Photo;
 public class MainActivity extends AppCompatActivity implements MainContract.View {
 
     @Inject MainContract.Presenter presenter;
+
     private ProgressBar progressBar;
     private PermissionDelegate delegate;
     private View noPermissionsView;
     private RecyclerView recyclerView;
     private View noDataView;
     private TextView counter;
+
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,20 +67,18 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         presenter.setView(this);
         recyclerView.setAdapter(new PhotoAdapter(this));
-
-        presenter.onCreate();
     }
 
     @Override protected void onStart() {
         super.onStart();
         Log.d("photo", "onStart");
-        presenter.bind();
+        presenter.onStart();
     }
 
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        Log.d("photo", "onDestroy");
-        presenter.unBind();
+    @Override protected void onStop() {
+        super.onStop();
+        Log.d("photo", "onStop");
+        presenter.onStop();
     }
 
     @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         progressBar.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
 
-    @Override public boolean hashPermissions() {
+    @Override public boolean hasPermissions() {
         return delegate.hasPermission();
     }
 

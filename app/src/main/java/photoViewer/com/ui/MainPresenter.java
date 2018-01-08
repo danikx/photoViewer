@@ -30,7 +30,7 @@ public class MainPresenter implements MainContract.Presenter {
     private PhotoObserver observer;
     private PhotoRepository repository;
     private ArrayList<Photo> photos;
-    private CompositeDisposable disposable = new CompositeDisposable();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     public MainPresenter(PhotoObserver observer, PhotoRepository repository) {
         this.observer = observer;
@@ -70,11 +70,19 @@ public class MainPresenter implements MainContract.Presenter {
         this.view = view;
     }
 
-    @Override public void bind() {
-        view.showNoPermissionView(!view.hashPermissions());
+    @Override public void onStart() {
+        if (!view.hasPermissions()) {
+            view.showNoPermissionView(true);
+            view.askPermissions();
+
+        } else {
+            view.showNoPermissionView(false);
+            if (observer != null) observer.start();
+            loadPhotos();
+        }
     }
 
-    @Override public void unBind() {
+    @Override public void onStop() {
         disposable.clear();
         if (observer != null) observer.stop();
     }
@@ -89,54 +97,44 @@ public class MainPresenter implements MainContract.Presenter {
         view.showNoPermissionView(true);
     }
 
-    @Override public void onCreate() {
-
-        if (!view.hashPermissions()) {
-            view.askPermissions();
-
-        } else {
-            if (observer != null) observer.start();
-
-            loadPhotos();
-        }
-    }
-
     private void loadPhotos() {
-        view.clearData();
-        view.showProgressBar(true);
+        if (photos != null && photos.size() > 0) return;
 
+        view.showProgressBar(true);
+        view.clearData();
         photos = repository.readPhotos();
 
         if (photos == null || photos.isEmpty()) {
             view.showNoData(true);
-
         } else {
             view.showNoData(false);
 
-            Observable
-                    .fromIterable(photos)
-                    .subscribeOn(Schedulers.io())
-                    .map(new Function<Photo, Photo>() {
-                        @Override public Photo apply(Photo photo) throws Exception {
-                            photo.fileHash = md5(photo.path);
-                            photo.fileSizeInString = humanReadableByteCount(photo.fileSize);
-                            return photo;
-                        }
-                    })
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Photo>() {
-                        @Override public void accept(Photo photo) throws Exception {
-                            view.addPhoto(photo);
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override public void accept(Throwable throwable) throws Exception {
-                            view.showError(throwable);
-                        }
-                    }, new Action() {
-                        @Override public void run() throws Exception {
-                            view.showProgressBar(false);
-                        }
-                    });
+            disposable.add(
+                    Observable
+                            .fromIterable(photos)
+                            .subscribeOn(Schedulers.io())
+                            .map(new Function<Photo, Photo>() {
+                                @Override public Photo apply(Photo photo) throws Exception {
+                                    photo.fileHash = md5(photo.path);
+                                    photo.fileSizeInString = humanReadableByteCount(photo.fileSize);
+                                    return photo;
+                                }
+                            })
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<Photo>() {
+                                @Override public void accept(Photo photo) throws Exception {
+                                    view.addPhoto(photo);
+                                }
+                            }, new Consumer<Throwable>() {
+                                @Override public void accept(Throwable throwable) throws Exception {
+                                    view.showError(throwable);
+                                }
+                            }, new Action() {
+                                @Override public void run() throws Exception {
+                                    view.showProgressBar(false);
+                                }
+                            })
+            );
         }
     }
 
